@@ -3,4 +3,5 @@
 .settings/
 bin/
 libs/
+gen/
 proguard-project.txt
