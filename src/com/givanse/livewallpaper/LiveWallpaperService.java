@@ -5,9 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import com.givanse.livewallpaper.R;
-
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -39,45 +37,47 @@ public class LiveWallpaperService extends AnimationWallpaper {
         
         public Bitmap imgFish;
 
-        private List<Point> circles;
+        private List<Point> donuts;
         private Paint paint = new Paint();
         private int width;
         private int height;
-        private int maxNumber;
+        private int maxNumberOfDonuts;
         private boolean touchEnabled;
 
         LiveWallpaperEngine() {
         	// get the fish and background image references
-            imgFish = BitmapFactory.decodeResource(getResources(), R.drawable.fish);
-            xFish=-130; // initialize xFish position
-            yFish=200;  // initialize yFish position   
+            this.imgFish = BitmapFactory.decodeResource(getResources(), R.drawable.fish);
+            xFish = -130; // initialize xFish position
+            yFish = 200;  // initialize yFish position   
 
-            SharedPreferences prefs = PreferenceManager
-                          .getDefaultSharedPreferences(LiveWallpaperService.this);
-            maxNumber = Integer
-                              .valueOf(prefs.getString("numberOfCircles", "4"));
-            touchEnabled = prefs.getBoolean("touch", false);
-            circles = new ArrayList<Point>();
-            paint.setAntiAlias(true);
-            paint.setColor(Color.WHITE);
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeJoin(Paint.Join.ROUND);
-            paint.setStrokeWidth(10f);
+            SharedPreferences prefs = 
+            	PreferenceManager.getDefaultSharedPreferences(LiveWallpaperService.this);
+            this.maxNumberOfDonuts = 
+            	Integer.valueOf(prefs.getString("numberOfCircles", "1"));
+            this.touchEnabled = prefs.getBoolean("touch", false);
+            this.donuts = new ArrayList<Point>();
+            this.paint.setAntiAlias(true);
+            this.paint.setColor(Color.WHITE);
+            this.paint.setStyle(Paint.Style.STROKE);
+            this.paint.setStrokeJoin(Paint.Join.ROUND);
+            this.paint.setStrokeWidth(10f);
         }
 
         @Override
         public void onSurfaceChanged(SurfaceHolder holder, 
                                      int format, int width, int height) {
         	this.height = height;
+        	
         	if (this.isPreview()) {
         		this.width = width;
         	} else {
         		this.width = 2 * width;
         	}
         	this.visibleWidth = width;
-        	 
+        	
+            /* Start with 20 random RainbowCircle instances. */ 
         	for (int i = 0; i < 20; i++) {
-        		this.createRandomCircle();
+        		this.addRandomRainbowCircle();
         	}
         	 
         	super.onSurfaceChanged(holder, format, width, height);
@@ -85,7 +85,7 @@ public class LiveWallpaperService extends AnimationWallpaper {
 
         @Override
         public void onTouchEvent(MotionEvent event) {
-            if (touchEnabled) {
+            if (this.touchEnabled) {
                 float x = event.getX();
                 float y = event.getY();
                 SurfaceHolder holder = getSurfaceHolder();
@@ -93,24 +93,25 @@ public class LiveWallpaperService extends AnimationWallpaper {
                 try {
                     canvas = holder.lockCanvas();
                     if (canvas != null) {
-                        canvas.drawColor(Color.BLACK);
-                        circles.clear();
-                        circles.add(new Point(String.valueOf(circles.size() + 1), x, y));
-                        drawCircles(canvas, circles);
+                        canvas.drawColor(Color.RED);
+                        this.donuts.clear();
+                        this.donuts.add(
+                        	new Point(String.valueOf(this.donuts.size() + 1), x, y));
+                        drawDonuts(canvas, this.donuts);
                     }
                 } finally {
                     if (canvas != null)
                         holder.unlockCanvasAndPost(canvas);
-                }
-                super.onTouchEvent(event);
+                }    
             }
+            
+            super.onTouchEvent(event);
         }
 
         @Override
         public void onOffsetsChanged(float xOffset, float yOffset, 
         		                     float xStep, float yStep, 
         		                     int xPixels, int yPixels) {
-        	// store the offsets
         	this.offsetX = xOffset;
         	this.offsetY = yOffset;
         	 
@@ -118,12 +119,17 @@ public class LiveWallpaperService extends AnimationWallpaper {
         	                       xPixels, yPixels);
         }
         
+        /**
+         * 
+         */
         @Override
         public Bundle onCommand(String action, int x, int y, int z,
-            Bundle extras, boolean resultRequested) {
+                                Bundle extras, boolean resultRequested) {
+        	/* Draw a RainbowCircle on tapped location. */
             if ("android.wallpaper.tap".equals(action)) {
-                createCircle(x - this.offsetX, y - this.offsetY);
+                addRainbowCircle(x - this.offsetX, y - this.offsetY);
             }
+            
             return super.onCommand(action, x, y, z, extras, resultRequested);
         }
 
@@ -145,16 +151,20 @@ public class LiveWallpaperService extends AnimationWallpaper {
         
         @Override
         protected void iteration() {
-           synchronized (circles) {
+           synchronized (donuts) {
+        	  
+        	  /* Update the state of every RainbowCircle. */
               for (Iterator<RainbowCircle> it = rCircles.iterator(); it.hasNext();) {
                  RainbowCircle circle = it.next();
                  circle.tick();
                  if (circle.isDone())
                     it.remove();
               }
-              iterationCount++;
-              if (isPreview() || iterationCount % 2 == 0)
-                 createRandomCircle();
+              
+              this.iterationCount++;
+              
+              if (isPreview() || this.iterationCount % 2 == 0)
+                 addRandomRainbowCircle();
            }
          
            super.iteration();
@@ -165,39 +175,43 @@ public class LiveWallpaperService extends AnimationWallpaper {
     	   c.drawColor(0xff000000);
     	 
     	   synchronized (rCircles) {
-    	      for (RainbowCircle circle : rCircles) {
-    	         if (circle.alpha == 0)
+    	      for (RainbowCircle rnbwCrcl : rCircles) {
+    	    	  
+    	         if (rnbwCrcl.alpha == 0)
     	            continue;
     	 
     	         // intersects with the screen?
-    	         float minX = circle.x - circle.radius;
+    	         float minX = rnbwCrcl.x - rnbwCrcl.radius;
     	         if (minX > (-this.offsetX + this.visibleWidth)) {
     	            continue;
     	         }
-    	         float maxX = circle.x + circle.radius;
+    	         float maxX = rnbwCrcl.x + rnbwCrcl.radius;
     	         if (maxX < -this.offsetX) {
     	            continue;
     	         }
     	 
-    	         paint.setAntiAlias(true);
+    	         this.paint.setAntiAlias(true);
     	 
     	         // paint the fill
-    	         paint.setColor(Color.argb(circle.alpha, Color
-    	               .red(circle.color), Color.green(circle.color),
-    	               Color.blue(circle.color)));
-    	         paint.setStyle(Paint.Style.FILL_AND_STROKE);
-    	         c.drawCircle(circle.x + this.offsetX, circle.y
-    	               + this.offsetY, circle.radius, paint);
+    	         this.paint.setColor(Color.argb(
+    	             rnbwCrcl.alpha, Color.red(rnbwCrcl.color), 
+    	             				 Color.green(rnbwCrcl.color),
+    	                             Color.blue(rnbwCrcl.color)));
+    	         this.paint.setStyle(Paint.Style.FILL_AND_STROKE);
+    	         c.drawCircle(rnbwCrcl.x + this.offsetX, 
+    	        		 	  rnbwCrcl.y + this.offsetY, 
+                              rnbwCrcl.radius, this.paint);
     	 
     	         // paint the contour
-    	         paint.setColor(Color.argb(circle.alpha, 63 + 3 * Color
-    	               .red(circle.color) / 4, 63 + 3 * Color
-    	               .green(circle.color) / 4, 63 + 3 * Color
-    	               .blue(circle.color) / 4));
-    	         paint.setStyle(Paint.Style.STROKE);
-    	         paint.setStrokeWidth(3.0f);
-    	         c.drawCircle(circle.x + this.offsetX, circle.y
-    	               + this.offsetY, circle.radius, paint);
+    	         this.paint.setColor(Color.argb(
+    	             rnbwCrcl.alpha, 63 + 3 * Color.red(rnbwCrcl.color) / 4, 
+    	                             63 + 3 * Color.green(rnbwCrcl.color) / 4, 
+    	                             63 + 3 * Color.blue(rnbwCrcl.color) / 4));
+    	         this.paint.setStyle(Paint.Style.STROKE);
+    	         this.paint.setStrokeWidth(3.0f);
+    	         c.drawCircle(rnbwCrcl.x + this.offsetX, 
+    	        		      rnbwCrcl.y + this.offsetY, 
+                              rnbwCrcl.radius, this.paint);
     	      }
     	   }
     	   drawFish(c);
@@ -209,59 +223,42 @@ public class LiveWallpaperService extends AnimationWallpaper {
             canvas.drawBitmap(imgFish, xFish, yFish, null);
            
             // if xFish crosses the width means  xFish has reached to right edge
-            if(xFish > canvas.getWidth() + 100) {  
+            if(xFish > this.visibleWidth + 100) {  
                 // assign initial value to start with
                 xFish = -130;
             }
             // change the xFish position/value by 1 pixel
-            xFish += 1;
+            xFish += 3;
 
-            if (circles.size() >= maxNumber) {
-                circles.clear();
+            if (donuts.size() >= maxNumberOfDonuts) {
+                donuts.clear();
             }
-            int x = (int) (canvas.getWidth() * Math.random());
+            int x = (int) (this.visibleWidth * Math.random());
             int y = (int) (canvas.getHeight() * Math.random());
-            circles.add(new Point(String.valueOf(circles.size() + 1), x, y));
-            drawCircles(canvas, circles);
+            donuts.add(new Point(String.valueOf(donuts.size() + 1), x, y));
+            drawDonuts(canvas, donuts);
         }
 
         // Surface view requires that all elements are drawn completely
-        private void drawCircles(Canvas canvas, List<Point> circles) {
+        private void drawDonuts(Canvas canvas, List<Point> donuts) {
         	paint.setColor(Color.BLUE);
-            for (Point point : circles) {
+            for (Point point : donuts) {
             	canvas.drawCircle(point.getX(), point.getY(), 20.0f, paint);
             }
         }
         
-        void createRandomCircle() {
-        	   int x = (int) (width * Math.random());
-        	   int y = (int) (height * Math.random());
-        	   createCircle(x, y);
-        	}
+        void addRandomRainbowCircle() {
+        	int x = (int) (this.width * Math.random());
+        	int y = (int) (this.height * Math.random());
+        	addRainbowCircle(x, y);
+        }
         	 
-        	int getColor(float yFraction) {
-        	   return Color.HSVToColor(new float[] { 360.0f * yFraction, 1.0f,
-        	         1.0f });
-        	}
-        	 
-        	void createCircle(float x, float y) {
-        	   float radius = (float) (40 + 20 * Math.random());
-        	 
-        	   float yFraction = (float) y / (float) height;
-        	   yFraction = yFraction + 0.05f - (float) (0.1f * (Math.random()));
-        	   if (yFraction < 0.0f)
-        	      yFraction += 1.0f;
-        	   if (yFraction > 1.0f)
-        	      yFraction -= 1.0f;
-        	   int color = getColor(yFraction);
-        	 
-        	   int steps = 40 + (int) (20 * Math.random());
-        	   RainbowCircle circle = new RainbowCircle(x, y, radius,
-        	         color, steps);
-        	   synchronized (this.circles) {
-        	      this.rCircles.add(circle);
-        	   }
-        	}
+        void addRainbowCircle(float x, float y) {
+            RainbowCircle rCircle = new RainbowCircle(x, y, this.height);
+            synchronized (this.donuts) {
+                this.rCircles.add(rCircle);
+            }
+        }
 
-    } // class LiveWallpaperEngine
+    } // inner class LiveWallpaperEngine
 }

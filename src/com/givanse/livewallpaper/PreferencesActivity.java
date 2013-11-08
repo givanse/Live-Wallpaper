@@ -39,5 +39,5 @@ public class PreferencesActivity extends PreferenceActivity {
                                Toast.LENGTH_SHORT).show();
                 return false;
             }
-        };
+    }; // numberCheckListener
 }

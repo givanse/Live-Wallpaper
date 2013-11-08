@@ -1,7 +1,6 @@
 package com.givanse.livewallpaper;
 
 import android.app.Activity;
-import android.app.Service;
 import android.app.WallpaperManager;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -32,25 +31,17 @@ public class PreviewActivity extends Activity {
             intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, component);
             startActivityForResult(intent, REQUEST_CODE);
 	    } else {
-	            /*
-	             * Open live wallpaper picker (API Level 15 or lower).
-	             *
-	             * Display a quick little message (toast) with instructions.
-	             */
-	            intent.setAction(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER);
-	            Resources res = getResources();
-	            String hint = res.getString(R.string.toast_instruct_lwp_list) +
-	                          res.getString(R.string.app_name);
-	            Toast toast = Toast.makeText(this, hint, Toast.LENGTH_LONG);
-	            toast.show();
+	    	/*
+			 * Open live wallpaper picker (API Level 15 or lower).
+			 * Display a quick little message (toast) with instructions.
+			 */
+	    	intent.setAction(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER);
+			Resources res = getResources();
+			String hint = res.getString(R.string.toast_instruct_lwp_list) +
+			              res.getString(R.string.app_name);
+			Toast toast = Toast.makeText(this, hint, Toast.LENGTH_LONG);
+			toast.show();
 	    }
     }
 	
-	@Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent)
-    {
-    	super.onActivityResult(requestCode, resultCode, intent);
-    	if (requestCode == REQUEST_CODE)
-    		finish();
-    }
 }

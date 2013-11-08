@@ -16,13 +16,15 @@ public abstract class AnimationWallpaper extends WallpaperService {
           * Handle the message queue associated with the main thread. 
           * Used to wait for the next iteration.
           */
-    	private final Handler mHandler = new Handler();
+    	private final Handler handler = new Handler();
+
+        private boolean visible = true;                 /* current visibility */
 
         /**
           * Called at each iteration to draw one single frame and schedule
           * the next iteration.
           */
-        private final Runnable mIteration = new Runnable() {
+        private final Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
                     iteration();
@@ -30,12 +32,10 @@ public abstract class AnimationWallpaper extends WallpaperService {
                 }
             };
             
-        private boolean visible = true;                 /* current visibility */
-
         @Override
         public void onDestroy() {
             super.onDestroy();
-            mHandler.removeCallbacks(mIteration);       /* stop the animation */
+            handler.removeCallbacks(runnable);       /* stop the animation */
         }
 
         @Override
@@ -50,7 +50,7 @@ public abstract class AnimationWallpaper extends WallpaperService {
                   * Stops the animation loop, removing the animation and
                   * redraw requests.
                   */
-            	mHandler.removeCallbacks(mIteration);
+            	handler.removeCallbacks(runnable);
             }
         }
 
@@ -65,7 +65,7 @@ public abstract class AnimationWallpaper extends WallpaperService {
         public void onSurfaceDestroyed(SurfaceHolder holder) {
         	super.onSurfaceDestroyed(holder);
             this.visible = false;
-            mHandler.removeCallbacks(mIteration);       /* stop the animation */
+            handler.removeCallbacks(runnable);       /* stop the animation */
         }
 
         public void onOffsetsChanged(float xOffset, float yOffset, 
@@ -79,11 +79,10 @@ public abstract class AnimationWallpaper extends WallpaperService {
         
         protected void iteration() {
             /* Reschedule the next redraw in 40ms */
-            mHandler.removeCallbacks(mIteration);
+            handler.removeCallbacks(runnable);
             if (visible) {
-                mHandler.postDelayed(mIteration, 1000 / 25);
+                handler.postDelayed(runnable, 1000 / 25);
             }
         }
-
-    }
+    } // inner class AnimationEngine
 }
