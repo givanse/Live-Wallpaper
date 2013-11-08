@@ -1,7 +1,8 @@
 <resources>
 
-    <string name="app_name">LiveWallpaper</string>
-	<string name="wallpaper_description">Fish Aquarium</string>
+    <string name="app_name">Live Wallpaper</string>
+	<string name="live_wallpaper_service_name">Live Wallpaper Service</string>
+	<string name="wallpaper_description">Super Mega Live Wallpaper!</string>
 	<string name="btn_set_wallpaper_txt">Set Wallpaper</string>
 	<string name="btn_set_wallpaper_onclick">onClick</string>
 	
