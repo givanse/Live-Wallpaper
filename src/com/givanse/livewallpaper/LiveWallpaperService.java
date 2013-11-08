@@ -37,7 +37,7 @@ public class LiveWallpaperService extends AnimationWallpaper {
 
         int iterationCount = 0;
         
-        public Bitmap imgFish, backgroundImage;
+        public Bitmap imgFish;
 
         private List<Point> circles;
         private Paint paint = new Paint();
@@ -49,7 +49,6 @@ public class LiveWallpaperService extends AnimationWallpaper {
         LiveWallpaperEngine() {
         	// get the fish and background image references
             imgFish = BitmapFactory.decodeResource(getResources(), R.drawable.fish);
-            backgroundImage = BitmapFactory.decodeResource(getResources(), R.drawable.background);
             xFish=-130; // initialize xFish position
             yFish=200;  // initialize yFish position   
 

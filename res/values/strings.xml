@@ -1,9 +1,12 @@
 <resources>
 
     <string name="app_name">Live Wallpaper</string>
+    <string name="app_name_preferences">Live Wallpaper : Preferences</string>
+    <string name="app_name_preview">Live Wallpaper : Preview</string>
 	<string name="live_wallpaper_service_name">Live Wallpaper Service</string>
 	<string name="wallpaper_description">Super Mega Live Wallpaper!</string>
 	<string name="btn_set_wallpaper_txt">Set Wallpaper</string>
 	<string name="btn_set_wallpaper_onclick">onClick</string>
+	<string name="toast_instruct_lwp_list">From the list of live wallpapers choose: </string>
 	
 </resources>
