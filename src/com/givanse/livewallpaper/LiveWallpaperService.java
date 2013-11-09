@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import com.givanse.livewallpaper.R;
+import com.givanse.livewallpaper.engine.AnimationWallpaper;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

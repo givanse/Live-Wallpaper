@@ -1,4 +1,7 @@
-package com.givanse.livewallpaper;
+package com.givanse.livewallpaper.preferences;
+
+import com.givanse.livewallpaper.R;
+import com.givanse.livewallpaper.R.xml;
 
 import android.os.Bundle;
 import android.preference.Preference;

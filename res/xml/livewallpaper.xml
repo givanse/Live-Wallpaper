@@ -3,4 +3,4 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:thumbnail="@drawable/fish"
     android:description="@string/wallpaper_description" 
-    android:settingsActivity="com.givanse.livewallpaper.PreferencesActivity" /> 
+    android:settingsActivity="com.givanse.livewallpaper.preferences.PreferencesActivity" /> 

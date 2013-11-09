@@ -1,4 +1,4 @@
-package com.givanse.livewallpaper;
+package com.givanse.livewallpaper.engine;
 
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
