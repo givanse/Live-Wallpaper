@@ -42,6 +42,8 @@ public class PreviewActivity extends Activity {
 			Toast toast = Toast.makeText(this, hint, Toast.LENGTH_LONG);
 			toast.show();
 	    }
+        
+        finish();
     }
 	
 }
